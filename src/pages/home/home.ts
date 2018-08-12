@@ -1,23 +1,27 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { IndicadoresData } from '../../providers/indicadores-data';
+import * as _ from 'lodash'
+import moment from 'moment';
+import { Loading, LoadingController } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
 export class HomePage {
+  public indicadores: Array<any> = [];
+  public indicadoresLabels: Array<string> = [];
 
+  public lineChartData: Array<any> = [];
 
-  public lineChartData:Array<any> = [
-    {data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A'},
-    {data: [28, 48, 40, 19, 86, 27, 90], label: 'Series B'},
-    {data: [18, 48, 77, 9, 100, 27, 40], label: 'Series C'}
-  ];
-  public lineChartLabels:Array<any> = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  public lineChartOptions:any = {
+  public lineChartLabels: Array<any> = [];
+
+  public lineChartOptions: any = {
     responsive: true
   };
-  public lineChartColors:Array<any> = [
+
+  public lineChartColors: Array<any> = [
     { // grey
       backgroundColor: 'rgba(148,159,177,0.2)',
       borderColor: 'rgba(148,159,177,1)',
@@ -43,31 +47,77 @@ export class HomePage {
       pointHoverBorderColor: 'rgba(148,159,177,0.8)'
     }
   ];
-  public lineChartLegend:boolean = true;
-  public lineChartType:string = 'line';
-  
-  public randomize():void {
-    let _lineChartData:Array<any> = new Array(this.lineChartData.length);
-    for (let i = 0; i < this.lineChartData.length; i++) {
-      _lineChartData[i] = {data: new Array(this.lineChartData[i].data.length), label: this.lineChartData[i].label};
-      for (let j = 0; j < this.lineChartData[i].data.length; j++) {
-        _lineChartData[i].data[j] = Math.floor((Math.random() * 100) + 1);
+
+  public lineChartLegend: boolean = true;
+  public lineChartType: string = 'line';
+  public fechaDesde: string = new Date().toISOString();
+  public fechaHasta: string = new Date().toISOString();
+
+  constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
+    this.lineChartData.push({ data: [1, 3, 4], label: 'test', id: 33 });
+  }
+
+  presentLoading(msg: string): Loading {
+    const loader = this.loadingCtrl.create({
+      content: "Consultando indicadores...",
+      duration: 1000
+    });
+    loader.present();
+
+    return loader;
+  }
+
+  cancelLoading(item: Loading) {
+    item.dismiss();
+  }
+
+  formatDate (item:string): string {
+    return moment(item).format('DD/MM/YYYY');
+  }
+
+  updateChartData(): void {
+      this.lineChartLabels = [this.formatDate(this.fechaDesde), this.formatDate(this.fechaHasta)];
+
+      var loadingItem = this.presentLoading('Cargando cotizaciones...');
+
+      for(var i = 0; i < this.indicadores.length; i++) {
+        this.getCotizaciones(this.lineChartData, this.indicadores[i]);
       }
-    }
-    this.lineChartData = _lineChartData;
-  }
-  
-  // events
-  public chartClicked(e:any):void {
-    console.log(e);
-  }
-  
-  public chartHovered(e:any):void {
-    console.log(e);
-  }
-  
-  constructor(public navCtrl: NavController) {
+      
+      this.cancelLoading(loadingItem);
+  };
 
+  getCotizaciones(lineChartData: any, i: any): void {
+  
+
+    this.indicadoresDataProvider.getCotizaciones(i.id, this.fechaDesde, this.fechaHasta).subscribe((cotizacionesData: any) => {
+
+      var valoresCotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
+        return c.valorCotizacion;
+      });
+
+      var flt =_.filter(lineChartData, function(d){
+        return d.id == i.id;
+      });
+
+      if(_.isEmpty(flt)) {
+        lineChartData.push({data: valoresCotizaciones, label: i.nombre, id: i.id});
+      }
+      else {
+        flt[0].data = valoresCotizaciones;
+      }
+     
+    });
   }
 
+  ionViewDidLoad() {
+    var dataProvider = this.indicadoresDataProvider;
+
+    this.lineChartLabels = [this.fechaDesde, this.fechaHasta];
+    dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
+      for(var i = 0; i < indicadoresData.items.length; i++) {
+        this.indicadores.push(indicadoresData.items[i]);
+      }
+    });
+  }
 }

@@ -1,23 +1,35 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Home</ion-title>
+    <ion-title>Indicadores</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
   <div class="row">
-    <div class="col-md-6">
-      <div style="display: block;">
-      <canvas baseChart width="300" height="400"
-                  [datasets]="lineChartData"
-                  [labels]="lineChartLabels"
-                  [options]="lineChartOptions"
-                  [colors]="lineChartColors"
-                  [legend]="lineChartLegend"
-                  [chartType]="lineChartType"
-                  (chartHover)="chartHovered($event)"
-                  (chartClick)="chartClicked($event)"></canvas>
-      </div>
+    <ion-item>
+      <ion-label>Fecha Desde</ion-label>
+      <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaDesde"></ion-datetime>
+    </ion-item>
+  </div>
+  <div class="row">
+    <ion-item>
+      <ion-label>Fecha Hasta</ion-label>
+      <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaHasta"></ion-datetime>
+    </ion-item>
+  </div>
+  <div class="row">
+    <ion-list>
+      <button ion-item *ngFor="let ind of indicadores">
+        {{ ind.nombre }}
+      </button>
+    </ion-list>
+  </div>
+  <button (click)="updateChartData()" ion-button full  [disabled]="indicadores.length == 0" >Consultar</button>
+  <div class="row">
+
+    <div style="display: block;">
+      <canvas baseChart width="300" height="400" [datasets]="lineChartData" [labels]="lineChartLabels" [options]="lineChartOptions"
+        [colors]="lineChartColors" [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
     </div>
   </div>
 </ion-content>
