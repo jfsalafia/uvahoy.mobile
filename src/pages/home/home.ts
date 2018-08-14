@@ -50,8 +50,8 @@ export class HomePage {
 
   public lineChartLegend: boolean = true;
   public lineChartType: string = 'line';
-  public fechaDesde: string = new Date().toISOString();
-  public fechaHasta: string = new Date().toISOString();
+  public fechaDesde: string =   moment().add(-1, 'week').startOf('day').toDate().toISOString();
+  public fechaHasta: string = moment().startOf('day').toDate().toISOString();
 
   constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
     this.lineChartData.push({ data: [1, 3, 4], label: 'test', id: 33 });
@@ -60,7 +60,7 @@ export class HomePage {
   presentLoading(msg: string): Loading {
     const loader = this.loadingCtrl.create({
       content: "Consultando indicadores...",
-      duration: 1000
+      duration: 3000
     });
     loader.present();
 
@@ -71,25 +71,32 @@ export class HomePage {
     item.dismiss();
   }
 
+  formatMomentDate (item: moment.Moment): string {
+    return item.format('DD/MM/YYYY');
+  }
+
   formatDate (item:string): string {
-    return moment(item).format('DD/MM/YYYY');
+    return this.formatMomentDate(moment(item));
   }
 
   updateChartData(): void {
-      this.lineChartLabels = [this.formatDate(this.fechaDesde), this.formatDate(this.fechaHasta)];
+      var diff = moment(this.fechaHasta).diff(this.fechaDesde, 'days');
+      this.lineChartLabels = [];
+
+      for(var j = 0; j <= diff; j++) {
+        this.lineChartLabels.push(this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'days')));
+      }
 
       var loadingItem = this.presentLoading('Cargando cotizaciones...');
 
       for(var i = 0; i < this.indicadores.length; i++) {
         this.getCotizaciones(this.lineChartData, this.indicadores[i]);
       }
-      
+
       this.cancelLoading(loadingItem);
   };
 
   getCotizaciones(lineChartData: any, i: any): void {
-  
-
     this.indicadoresDataProvider.getCotizaciones(i.id, this.fechaDesde, this.fechaHasta).subscribe((cotizacionesData: any) => {
 
       var valoresCotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
@@ -106,7 +113,6 @@ export class HomePage {
       else {
         flt[0].data = valoresCotizaciones;
       }
-     
     });
   }
 
@@ -114,10 +120,14 @@ export class HomePage {
     var dataProvider = this.indicadoresDataProvider;
 
     this.lineChartLabels = [this.fechaDesde, this.fechaHasta];
+    var loadingItem = this.presentLoading('Cargando indicadores...');
+
     dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
       for(var i = 0; i < indicadoresData.items.length; i++) {
         this.indicadores.push(indicadoresData.items[i]);
       }
+
+      this.cancelLoading(loadingItem);
     });
   }
 }

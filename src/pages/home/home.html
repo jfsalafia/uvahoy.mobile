@@ -17,18 +17,11 @@
       <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaHasta"></ion-datetime>
     </ion-item>
   </div>
-  <div class="row">
-    <ion-list>
-      <button ion-item *ngFor="let ind of indicadores">
-        {{ ind.nombre }}
-      </button>
-    </ion-list>
-  </div>
   <button (click)="updateChartData()" ion-button full  [disabled]="indicadores.length == 0" >Consultar</button>
   <div class="row">
 
     <div style="display: block;">
-      <canvas baseChart width="300" height="400" [datasets]="lineChartData" [labels]="lineChartLabels" [options]="lineChartOptions"
+      <canvas baseChart width="500" height="400" [datasets]="lineChartData" [labels]="lineChartLabels" [options]="lineChartOptions"
         [colors]="lineChartColors" [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
     </div>
   </div>
