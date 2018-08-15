@@ -5,24 +5,20 @@
 </ion-header>
 
 <ion-content padding>
-  <div class="row">
-    <ion-item>
-      <ion-label>Fecha Desde</ion-label>
-      <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaDesde"></ion-datetime>
-    </ion-item>
-  </div>
-  <div class="row">
-    <ion-item>
-      <ion-label>Fecha Hasta</ion-label>
-      <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaHasta"></ion-datetime>
-    </ion-item>
-  </div>
-  <button (click)="updateChartData()" ion-button full  [disabled]="indicadores.length == 0" >Consultar</button>
-  <div class="row">
+  <ion-item>
+    <ion-label>Fecha Desde</ion-label>
+    <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaDesde"></ion-datetime>
+  </ion-item>
 
-    <div style="display: block;">
-      <canvas baseChart width="500" height="400" [datasets]="lineChartData" [labels]="lineChartLabels" [options]="lineChartOptions"
-        [colors]="lineChartColors" [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
-    </div>
+  <ion-item>
+    <ion-label>Fecha Hasta</ion-label>
+    <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaHasta"></ion-datetime>
+  </ion-item>
+
+  <button (click)="updateChartData()" ion-button full [disabled]="indicadores.length == 0">Consultar</button>
+
+  <div style="display: block;">
+    <canvas baseChart [datasets]="lineChartData" [labels]="lineChartLabels" [options]="lineChartOptions" [colors]="lineChartColors"
+      [legend]="lineChartLegend" [chartType]="lineChartType"></canvas>
   </div>
 </ion-content>
