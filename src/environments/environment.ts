@@ -1,4 +1,4 @@
-export const environment = {
-    production: false,
-    apiUrl: 'api/'
-  };
+export const ENV = {
+  mode: 'Production',
+  apiUrl: 'http://uvahoy-webapi.herokuapp.com/api/services/app/Indicador/'
+}

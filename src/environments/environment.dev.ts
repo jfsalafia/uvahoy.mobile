@@ -1,4 +1,4 @@
-export const environment = {
-    production: false,
-    apiUrl: 'api/'
-  };
+export const ENV = {
+  mode: 'Development',
+  apiUrl: 'api/'
+}

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../environments/environment';
+import { ENV } from '@app/env'
 
 @Injectable()
 export class IndicadoresData {
 
-  serviceUrl: string = environment.apiUrl;
-  production: string = environment.production.toString();
+  serviceUrl: string = ENV.apiUrl;
+  mode: string = ENV.mode;
   
   constructor(public httpClient: HttpClient) { 
 

@@ -10,7 +10,7 @@ import * as _ from 'lodash'
 })
 
 export class ContactPage {
-  public production: string = "";
+  public mode: string = "";
   public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
   public variacionElegida: string = 'Diaria';
 
@@ -71,7 +71,7 @@ export class ContactPage {
 
   ionViewDidLoad() {
     var dataProvider = this.indicadoresDataProvider;
-    this.production = dataProvider.production;
+    this.mode = dataProvider.mode;
 
     dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
 
