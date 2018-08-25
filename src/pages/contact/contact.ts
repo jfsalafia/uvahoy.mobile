@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { IndicadoresData } from '../../providers/indicadores-data';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import * as _ from 'lodash'
 
 @Component({
@@ -10,7 +10,7 @@ import * as _ from 'lodash'
 })
 
 export class ContactPage {
-
+  public production: string = "";
   public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
   public variacionElegida: string = 'Diaria';
 
@@ -51,7 +51,7 @@ export class ContactPage {
   }
 
   getCotizaciones(indicador: any, fechaDesde: string, fechaHasta: string): void {
-
+    
     this.indicadoresDataProvider.getCotizaciones(indicador.id, fechaDesde, fechaHasta).subscribe((cotizacionesData: any) => {
 
       var valoresCotizacionesOrdenadas = _.sortBy(cotizacionesData.cotizaciones, function (c) {
@@ -71,6 +71,7 @@ export class ContactPage {
 
   ionViewDidLoad() {
     var dataProvider = this.indicadoresDataProvider;
+    this.production = dataProvider.production;
 
     dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
 
