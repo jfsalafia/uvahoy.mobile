@@ -4,7 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 @Injectable()
 export class IndicadoresData {
 
-  serviceUrl: string= 'http://uvahoy-webapi.herokuapp.com/api/services/app/Indicador/';
+  serviceUrl: string= 'api/';
 
   constructor(public httpClient: HttpClient) { 
 

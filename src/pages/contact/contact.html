@@ -1,19 +1,62 @@
-
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Contact
+      Indicadores
     </ion-title>
   </ion-navbar>
 </ion-header>
-
 <ion-content>
-  <div style="display: block">
-    <canvas baseChart
-                [data]="doughnutChartData"
-                [labels]="doughnutChartLabels"
-                [chartType]="doughnutChartType"
-                (chartHover)="chartHovered($event)"
-                (chartClick)="chartClicked($event)"></canvas>
-  </div>
+  <ion-item>
+    <ion-label>Variacion</ion-label>
+    <ion-select placeholder="Seleccionar..." okText="Aceptar" cancelText="Cancelar" (ionChange)="onVariacionChange()" [(ngModel)]="variacionElegida">
+      <ion-option *ngFor="let v of variaciones" [value]="v">{{v}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <ion-card *ngFor="let indicador of indicadores">
+    <ion-card-header>
+      <h1 ion-text color="primary">
+          <div>{{indicador.descripcion}}</div>
+      </h1>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-row>
+        <ion-col>
+          <button ion-button icon-start clear>
+            <div>{{formatDate(indicador.ultimaCotizacion?.fechaHoraCotizacion)}}</div>
+          </button>
+        </ion-col>
+        <ion-col>
+          <button ion-button icon-start clear>
+            <div>{{indicador.ultimaCotizacion?.valorCotizacion}}</div>
+          </button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <button ion-button icon-start clear>
+            <div>{{formatDate(indicador.primeraCotizacion?.fechaHoraCotizacion)}}
+            </div>
+          </button>
+        </ion-col>
+        <ion-col>
+          <button ion-button icon-start clear>
+            <div>{{indicador.primeraCotizacion?.valorCotizacion}}</div>
+          </button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+          <ion-col>
+              <button ion-button icon-start clear>
+                <div>Variacion</div>
+              </button>
+            </ion-col>
+        <ion-col>
+          <button ion-button icon-start danger>
+            <ion-icon name="trending-up"></ion-icon>
+            <div>{{indicador.variacionPorcentual}}%</div>
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
