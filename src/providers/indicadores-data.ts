@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ENV } from '@app/env'
+import { ENV } from '@app/env';
 
 @Injectable()
 export class IndicadoresData {

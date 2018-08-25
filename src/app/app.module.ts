@@ -13,6 +13,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { ChartsModule } from 'ng2-charts';
 import { IndicadoresData} from  '../providers/indicadores-data';
 import { HttpClient,HttpClientModule } from '@angular/common/http';
+import { ENV } from '@app/env';
 
 // These are all imports required for Pro Client with Monitoring & Deploy,
 // feel free to merge into existing imports above.
@@ -36,10 +37,12 @@ export class MyErrorHandler implements ErrorHandler {
   }
 
   handleError(err: any): void {
-    Pro.monitoring.handleNewError(err);
-    // Remove this if you want to disable Ionic's auto exception handling
-    // in development mode.
-    this.ionicErrorHandler && this.ionicErrorHandler.handleError(err);
+    if(ENV.mode == 'Production') {
+      Pro.monitoring.handleNewError(err);
+      // Remove this if you want to disable Ionic's auto exception handling
+      // in development mode.
+      this.ionicErrorHandler && this.ionicErrorHandler.handleError(err);
+    }
   }
 }
 

@@ -7,9 +7,6 @@
 </ion-header>
 <ion-content>
   <ion-item>
-    <ion-label>{{mode}}</ion-label>
-  </ion-item>
-  <ion-item>
     <ion-label>Variacion</ion-label>
     <ion-select placeholder="Seleccionar..." okText="Aceptar" cancelText="Cancelar" (ionChange)="onVariacionChange()" [(ngModel)]="variacionElegida">
       <ion-option *ngFor="let v of variaciones" [value]="v">{{v}}</ion-option>
@@ -28,7 +25,7 @@
           <ion-col>
             <button ion-button icon-start clear>
               <ion-icon name="trending-up"></ion-icon>
-              <div>{{indicador.variacionPorcentual}}%</div>
+              <h2>{{indicador.variacionPorcentual | number}}%</h2>
             </button>
           </ion-col>
         </ion-row>
@@ -38,25 +35,25 @@
       <ion-row>
         <ion-col>
           <button ion-button icon-start clear>
-            <div>{{formatDate(indicador.ultimaCotizacion?.fechaHoraCotizacion)}}</div>
+            <h2>{{formatDate(indicador.ultimaCotizacion?.fechaHoraCotizacion)}}</h2>
           </button>
         </ion-col>
         <ion-col>
           <button ion-button icon-start clear>
-            <div>{{indicador.ultimaCotizacion?.valorCotizacion}}</div>
+            <h2>{{indicador.ultimaCotizacion?.valorCotizacion | number}}</h2>
           </button>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
           <button ion-button icon-start clear>
-            <div>{{formatDate(indicador.primeraCotizacion?.fechaHoraCotizacion)}}
-            </div>
+            <h2>{{formatDate(indicador.primeraCotizacion?.fechaHoraCotizacion)}}
+            </h2>
           </button>
         </ion-col>
         <ion-col>
           <button ion-button icon-start clear>
-            <div>{{indicador.primeraCotizacion?.valorCotizacion}}</div>
+            <h2>{{indicador.primeraCotizacion?.valorCotizacion | number}}</h2>
           </button>
         </ion-col>
       </ion-row>
