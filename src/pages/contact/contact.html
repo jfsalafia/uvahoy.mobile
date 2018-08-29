@@ -7,6 +7,7 @@
 </ion-header>
 <ion-content>
   <ion-item>
+    <ion-label>{{mode}}</ion-label>
     <ion-label>Variacion</ion-label>
     <ion-select placeholder="Seleccionar..." okText="Aceptar" cancelText="Cancelar" (ionChange)="onVariacionChange()" [(ngModel)]="variacionElegida">
       <ion-option *ngFor="let v of variaciones" [value]="v">{{v}}</ion-option>
