@@ -5,6 +5,13 @@
 </ion-header>
 
 <ion-content padding>
+    <ion-item>
+        <ion-label>{{mode}}</ion-label>
+        <ion-label>Variacion</ion-label>
+        <ion-select placeholder="Seleccionar..." okText="Aceptar" cancelText="Cancelar" (ionChange)="onVariacionChange()" [(ngModel)]="variacionElegida">
+          <ion-option *ngFor="let v of variaciones" [value]="v">{{v}}</ion-option>
+        </ion-select>
+      </ion-item>
   <ion-item>
     <ion-label>Fecha Desde</ion-label>
     <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="fechaDesde"></ion-datetime>

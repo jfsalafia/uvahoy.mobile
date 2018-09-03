@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { IndicadoresData } from '../../providers/indicadores-data';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'page-about',
@@ -13,13 +15,13 @@ export class AboutPage {
   };
 
 
-  public barChartLabels:string[] = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
+  public barChartLabels:string[] = ['01/2018', '02/2018', '03/2018', '04/2018', '05/2018', '06/2018', '07/2018','08/2018'];
   public barChartType:string = 'bar';
   public barChartLegend:boolean = true;
   
   public barChartData:any[] = [
-    {data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A'},
-    {data: [28, 48, 40, 19, 86, 27, 90], label: 'Series B'}
+    {data: [65, 59, 80, 81, 56, 55, 40, 40], label: 'Dolar'},
+    {data: [28, 48, 40, 19, 86, 27, 90, 90], label: 'UVA'}
   ];
   
   // events
@@ -31,16 +33,26 @@ export class AboutPage {
     console.log(e);
   }
   
+  getCotizaciones(data:any, i: any): void {
+    this.indicadoresDataProvider.getCotizaciones(i.id, '01/01/2018', '01/08/2018').subscribe((cotizacionesData: any) => {
+
+      var valoresCotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
+        return c.valorCotizacion;
+      });
+
+      data.push({label: i.id, data : valoresCotizaciones});
+    });
+  }
+
   public randomize():void {
+
+    
     // Only Change 3 values
-    let data = [
-      Math.round(Math.random() * 100),
-      59,
-      80,
-      (Math.random() * 100),
-      56,
-      (Math.random() * 100),
-      40];
+    let data = [];
+    this.getCotizaciones(data, {id: 1});
+
+    this.getCotizaciones(data, {id: 2});
+
     let clone = JSON.parse(JSON.stringify(this.barChartData));
     clone[0].data = data;
     this.barChartData = clone;
@@ -52,7 +64,7 @@ export class AboutPage {
      */
   }
   
-  constructor(public navCtrl: NavController) {
+  constructor(public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
 
   }
 

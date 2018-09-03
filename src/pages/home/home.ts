@@ -50,8 +50,11 @@ export class HomePage {
 
   public lineChartLegend: boolean = true;
   public lineChartType: string = 'line';
-  public fechaDesde: string =   moment().add(-1, 'week').startOf('day').toDate().toISOString();
+  public fechaDesde: string = moment().add(-6, 'days').startOf('day').toDate().toISOString();
   public fechaHasta: string = moment().startOf('day').toDate().toISOString();
+  public variacionElegida: string = 'Diaria';
+  public mode: string = "";
+  public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
 
   constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
     this.lineChartData.push({ data: [1, 3, 4], label: 'test', id: 33 });
@@ -71,44 +74,81 @@ export class HomePage {
     item.dismiss();
   }
 
-  formatMomentDate (item: moment.Moment): string {
+  formatMomentDate(item: moment.Moment): string {
     return item.format('DD/MM/YYYY');
   }
 
-  formatDate (item:string): string {
+  formatDate(item: string): string {
     return this.formatMomentDate(moment(item));
   }
 
   updateChartData(): void {
-      var diff = moment(this.fechaHasta).diff(this.fechaDesde, 'days');
-      this.lineChartLabels = [];
+    let diff: number = 0;
+    if (this.variacionElegida == 'Diaria') {
+      diff = moment(this.fechaHasta).diff(this.fechaDesde, 'days');
+    }
+    else if (this.variacionElegida == 'Mensual') {
+      diff = moment(this.fechaHasta).diff(this.fechaDesde, 'months');
+    }
+    else if (this.variacionElegida == 'Anual') {
+      diff = moment(this.fechaHasta).diff(this.fechaDesde, 'years');
+    }
 
-      for(var j = 0; j <= diff; j++) {
-        this.lineChartLabels.push(this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'days')));
+    this.lineChartLabels = [];
+
+    for (var j = 0; j <= diff; j++) {
+
+      var etiq : string = '';
+
+      if (this.variacionElegida == 'Diaria') {
+        etiq = this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'days'));
+      }
+      else if (this.variacionElegida == 'Mensual') {
+        etiq = this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'months'));
+      }
+      else if (this.variacionElegida == 'Anual') {
+        etiq = this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'years'));
       }
 
-      var loadingItem = this.presentLoading('Cargando cotizaciones...');
+      this.lineChartLabels.push(etiq);
+    }
 
-      for(var i = 0; i < this.indicadores.length; i++) {
-        this.getCotizaciones(this.lineChartData, this.indicadores[i]);
-      }
+    var loadingItem = this.presentLoading('Cargando cotizaciones...');
 
-      this.cancelLoading(loadingItem);
+    for (var i = 0; i < this.indicadores.length; i++) {
+      this.getCotizaciones(this.lineChartData, this.indicadores[i], this.lineChartLabels);
+    }
+
+    this.cancelLoading(loadingItem);
   };
 
-  getCotizaciones(lineChartData: any, i: any): void {
+  getCotizaciones(lineChartData: any, i: any, lineaCharLabels:any): void {
     this.indicadoresDataProvider.getCotizaciones(i.id, this.fechaDesde, this.fechaHasta).subscribe((cotizacionesData: any) => {
 
-      var valoresCotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
-        return c.valorCotizacion;
+      var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
+        return {
+          fechaHoraCotizacion: c.fechaHoraCotizacion, 
+          valorCotizacion: c.valorCotizacion,
+          etiquetado: !_.isEmpty(_.filter(lineaCharLabels, function(e) {
+            return e == moment(c.fechaHoraCotizacion).format('DD/MM/YYYY');;
+          }))
+        };
       });
 
-      var flt =_.filter(lineChartData, function(d){
+      var valoresConEtiq = _.filter(cotizaciones, function(vc) {
+        return vc.etiquetado;
+      });
+
+      var valoresCotizaciones = _.map(valoresConEtiq, function (v) {
+        return v.valorCotizacion;
+      });
+
+      var flt = _.filter(lineChartData, function (d) {
         return d.id == i.id;
       });
 
-      if(_.isEmpty(flt)) {
-        lineChartData.push({data: valoresCotizaciones, label: i.nombre, id: i.id});
+      if (_.isEmpty(flt)) {
+        lineChartData.push({ data: valoresCotizaciones, label: i.nombre, id: i.id });
       }
       else {
         flt[0].data = valoresCotizaciones;
@@ -117,13 +157,15 @@ export class HomePage {
   }
 
   ionViewDidLoad() {
+  
     var dataProvider = this.indicadoresDataProvider;
+    this.mode = dataProvider.mode;
 
     this.lineChartLabels = [this.fechaDesde, this.fechaHasta];
     var loadingItem = this.presentLoading('Cargando indicadores...');
 
     dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
-      for(var i = 0; i < indicadoresData.items.length; i++) {
+      for (var i = 0; i < indicadoresData.items.length; i++) {
         this.indicadores.push(indicadoresData.items[i]);
       }
 
