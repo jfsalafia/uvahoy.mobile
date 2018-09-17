@@ -10,11 +10,11 @@ export class IndicadoresData {
   
   constructor(public httpClient: HttpClient) { 
 
-  }
+  };
 
   getIndicadores() {
     return this.httpClient.get(this.serviceUrl + 'GetList');
-  }
+  };
 
   getCotizaciones(id: number, fechaDesde: string, fechaHasta: string) {
     let params: HttpParams = new HttpParams()
@@ -25,5 +25,16 @@ export class IndicadoresData {
     var apiUrl = this.serviceUrl + 'GetIndicadorDetail';
 
     return this.httpClient.get(apiUrl, {params: params});
-  }
+  };
+
+  getMultiIndicadorCotizaciones(indicadores: string, fechas: string) {
+    let params: HttpParams = new HttpParams()
+    .set('Indicadores', indicadores)
+    .set('Fechas', fechas)
+    .set('Separador', ',');
+
+    var apiUrl = this.serviceUrl + 'GetMultiIndicadorDetail';
+
+    return this.httpClient.get(apiUrl, {params: params});
+  };
 }
