@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { IndicadoresData } from '../../providers/indicadores-data';
 import * as _ from 'lodash'
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { Loading, LoadingController } from 'ionic-angular';
 
 @Component({
@@ -50,20 +50,20 @@ export class HomePage {
 
   public lineChartLegend: boolean = true;
   public lineChartType: string = 'line';
-  public fechaDesde: string = moment().add(-6, 'days').startOf('day').toDate().toISOString();
+  public fechaDesde: string = moment().add(-7, 'days').startOf('day').toDate().toISOString();
   public fechaHasta: string = moment().startOf('day').toDate().toISOString();
+
   public variacionElegida: string = 'Diaria';
   public mode: string = "";
   public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
 
   constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
-    this.lineChartData.push({ data: [1, 3, 4], label: 'test', id: 33 });
-  }
+    this.lineChartData.push({ data: [], label: '', id: 1 });
+  };
 
-  presentLoading(msg: string): Loading {
+  presentLoading(): Loading {
     const loader = this.loadingCtrl.create({
-      content: "Consultando indicadores...",
-      duration: 3000
+      content: "Consultando indicadores..."
     });
     loader.present();
 
@@ -94,79 +94,90 @@ export class HomePage {
       diff = moment(this.fechaHasta).diff(this.fechaDesde, 'years');
     }
 
-    this.lineChartLabels = [];
+    var fechas: Moment[] = [];
 
     for (var j = 0; j <= diff; j++) {
 
-      var etiq : string = '';
-
       if (this.variacionElegida == 'Diaria') {
-        etiq = this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'days'));
+        fechas.push(moment(this.fechaDesde).startOf('day').add(j, 'days'));
       }
       else if (this.variacionElegida == 'Mensual') {
-        etiq = this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'months'));
+        fechas.push(moment(this.fechaDesde).startOf('day').add(j, 'months'));
       }
       else if (this.variacionElegida == 'Anual') {
-        etiq = this.formatMomentDate(moment(this.fechaDesde).startOf('day').add(j, 'years'));
+        fechas.push(moment(this.fechaDesde).startOf('day').add(j, 'years'));
       }
-
-      this.lineChartLabels.push(etiq);
     }
 
-    var loadingItem = this.presentLoading('Cargando cotizaciones...');
+    this.lineChartLabels = _.map(fechas, function (f: Moment) {
+      return f.format('DD/MM/YYYY');
+    });
 
-    for (var i = 0; i < this.indicadores.length; i++) {
-      this.getCotizaciones(this.lineChartData, this.indicadores[i], this.lineChartLabels);
-    }
+    var loadingItem = this.presentLoading();
+
+    this.getCotizaciones(this.indicadores, fechas);
 
     this.cancelLoading(loadingItem);
   };
 
-  getCotizaciones(lineChartData: any, i: any, lineaCharLabels:any): void {
-    this.indicadoresDataProvider.getCotizaciones(i.id, this.fechaDesde, this.fechaHasta).subscribe((cotizacionesData: any) => {
+  getCotizaciones(indicadores: any[], fechas: Moment[]): void {
+    var f = _.map(fechas, function (f: Moment) {
+      return f.format("MM/DD/YYYY");
+    });
+
+    var i = _.map(indicadores, function (i: any) {
+      return i.id;
+    });
+
+    var lcdata = this.lineChartData;
+
+    this.indicadoresDataProvider.getMultiIndicadorCotizaciones(i.join(), f.join()).subscribe((cotizacionesData: any) => {
 
       var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
         return {
-          fechaHoraCotizacion: c.fechaHoraCotizacion, 
-          valorCotizacion: c.valorCotizacion,
-          etiquetado: !_.isEmpty(_.filter(lineaCharLabels, function(e) {
-            return e == moment(c.fechaHoraCotizacion).format('DD/MM/YYYY');;
-          }))
+          indicadorId: c.indicadorId,
+          fechaHoraCotizacion: c.fechaHoraCotizacion,
+          valorCotizacion: c.valorCotizacion
         };
       });
 
-      var valoresConEtiq = _.filter(cotizaciones, function(vc) {
-        return vc.etiquetado;
-      });
+      for (var i = 0; i < this.lineChartData.length; i++) {
+        lcdata[i].data = [];
+        var indicadorId = this.lineChartData[i].id;
 
-      var valoresCotizaciones = _.map(valoresConEtiq, function (v) {
-        return v.valorCotizacion;
-      });
+        var cots = _.filter(cotizaciones, function (c) {
+          return c.indicadorId == indicadorId;
+        });
 
-      var flt = _.filter(lineChartData, function (d) {
-        return d.id == i.id;
-      });
+        let clone = JSON.parse(JSON.stringify(this.lineChartData));
 
-      if (_.isEmpty(flt)) {
-        lineChartData.push({ data: valoresCotizaciones, label: i.nombre, id: i.id });
-      }
-      else {
-        flt[0].data = valoresCotizaciones;
+        var idx = _.filter(clone, function (c) {
+          return c.id == indicadorId;
+        });
+
+        if (!_.isEmpty(idx)) {
+          _.first(idx).data = _.map(cots, function (c) {
+            return c.valorCotizacion;
+          });
+        }
+        this.lineChartData = clone;
       }
     });
   }
 
   ionViewDidLoad() {
-  
+
     var dataProvider = this.indicadoresDataProvider;
     this.mode = dataProvider.mode;
 
     this.lineChartLabels = [this.fechaDesde, this.fechaHasta];
-    var loadingItem = this.presentLoading('Cargando indicadores...');
+    var loadingItem = this.presentLoading();
 
     dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
+      this.lineChartData = [];
       for (var i = 0; i < indicadoresData.items.length; i++) {
         this.indicadores.push(indicadoresData.items[i]);
+        this.lineChartData.push({ data: [], label: indicadoresData.items[i].abreviatura, id: indicadoresData.items[i].id });
       }
 
       this.cancelLoading(loadingItem);

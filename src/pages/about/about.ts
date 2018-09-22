@@ -49,7 +49,7 @@ export class AboutPage {
       return d.id;
     });
 
-    var fechas = _.map(this.getFechas(), function(f) {
+    var fechas = _.map(this.getFechas(), function(f:Moment) {
         return f.format("MM/DD/YYYY");
     });
 
