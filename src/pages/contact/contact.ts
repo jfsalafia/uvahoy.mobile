@@ -14,27 +14,26 @@ export class ContactPage {
   public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
   public variacionElegida: string = 'Diaria';
 
-  public fechaDesde: string = moment().add(-1, 'day').startOf('day').toDate().toISOString();
-  public fechaHasta: string = moment().startOf('day').toDate().toISOString();
+  public fechaDesde: string = this.formatMomentDate(moment().add(-1, 'day').startOf('day'));
+  public fechaHasta: string =this.formatMomentDate(moment().startOf('day'));
 
   formatMomentDate(item: moment.Moment): string {
-    return item.format('DD/MM/YYYY');
+    return item.format('MM/DD/YYYY');
   }
 
   formatDate(item: string): string {
     return this.formatMomentDate(moment(item));
   }
 
- 
   onVariacionChange(): void {
     if(this.variacionElegida == 'Diaria') {
-      this.fechaDesde =  moment().add(-1, 'day').startOf('day').toDate().toISOString();
+      this.fechaDesde =  this.formatMomentDate(moment().add(-1, 'day').startOf('day'));
     }
     else if(this.variacionElegida == 'Mensual') {
-      this.fechaDesde =  moment().add(-1, 'month').startOf('day').toDate().toISOString();
+      this.fechaDesde =  this.formatMomentDate(moment().add(-1, 'month').startOf('day'));
     }
     else if(this.variacionElegida == 'Anual') {
-      this.fechaDesde =  moment().add(-1, 'year').startOf('day').toDate().toISOString();
+      this.fechaDesde =  this.formatMomentDate(moment().add(-1, 'year').startOf('day'));
     }
 
     for (var i = 0; i < this.indicadores.length; i++) {

@@ -20,10 +20,7 @@ export class AboutPage {
   public barChartType: string = 'bar';
   public barChartLegend: boolean = true;
 
-  public barChartData: any[] = [
-    { data: [], label: 'UVA', id: 1 }, 
-    { data: [], label: 'Dolar', id: 3 }
-  ];
+  public barChartData: any[] = [];
 
   // events
   public chartClicked(e: any): void {
@@ -86,12 +83,29 @@ export class AboutPage {
   }
 
   constructor(public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
-
    var labels = _.map(this.getFechas(), function(f) {
       return f.format('DD/MM/YYYY'); 
    });
   
    this.barChartLabels = [].concat(labels);
+
+   this.barChartData.push({ data: [], label: 'test', id: 1 });
   }
+
+  ionViewDidLoad() {
+    var dataProvider = this.indicadoresDataProvider;
+
+    dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
+      let bcData : any[] = [];
+
+      for (var i = 0; i < indicadoresData.items.length; i++) {
+        var ind = indicadoresData.items[i];
+     
+        bcData.push({ data: [], label: ind.descripcion, id: ind.id });
+      }
+      this.barChartData = bcData;
+    });
+  }
+
 
 }
