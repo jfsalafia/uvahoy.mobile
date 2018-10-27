@@ -1,0 +1,13 @@
+{
+    "name": "uvahoy.mobile",
+    "integrations": {
+        "cordova": {}
+    },
+    "type": "ionicangular",
+    "proxies": [
+        {
+            "path": "/api",
+            "proxyUrl": "http://uvahoy-webapi.herokuapp.com/api/services/app/Indicador/"
+        }
+    ]
+}
