@@ -7,7 +7,7 @@
     "proxies": [
         {
             "path": "/api",
-            "proxyUrl": "http://uvahoy-webapi.herokuapp.com/api/services/app/Indicador/"
+            "proxyUrl": "http://localhost:5000/api/services/app/Indicador/"
         }
     ]
 }
