@@ -13,6 +13,12 @@
       <ion-option *ngFor="let v of variaciones" [value]="v">{{v}}</ion-option>
     </ion-select>
   </ion-item>
+  <ion-item>
+    <ion-label>Cantidad</ion-label>
+    <ion-input [disabled]="variacionElegida == 'Diaria'" type="number" placeholder="5" [(ngModel)]="cantidadDetalle">
+      
+    </ion-input>
+  </ion-item>
   <ion-card *ngFor="let indicador of indicadores">
     <ion-card-header>
       <h1 ion-text color="primary">
@@ -26,36 +32,20 @@
           <ion-col>
             <button ion-button icon-start clear>
               <ion-icon name="trending-up"></ion-icon>
-              <h2>{{indicador.variacionPorcentual | number}}%</h2>
+              <h2>{{indicador.variacionPorcentual | percent :'1.4-4'}}</h2>
             </button>
           </ion-col>
         </ion-row>
       </h1>
     </ion-card-header>
     <ion-card-content>
-      <ion-row>
+      <h2>Ultimas cotizaciones</h2>
+      <ion-row *ngFor="let c of indicador.cotizaciones">
         <ion-col>
-          <button ion-button icon-start clear>
-            <h2>{{formatDate(indicador.ultimaCotizacion?.fechaHoraCotizacion)}}</h2>
-          </button>
+          {{formatDate(c.fechaHoraCotizacion)}}
         </ion-col>
         <ion-col>
-          <button ion-button icon-start clear>
-            <h2>{{indicador.ultimaCotizacion?.valorCotizacion | number}}</h2>
-          </button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <button ion-button icon-start clear>
-            <h2>{{formatDate(indicador.primeraCotizacion?.fechaHoraCotizacion)}}
-            </h2>
-          </button>
-        </ion-col>
-        <ion-col>
-          <button ion-button icon-start clear>
-            <h2>{{indicador.primeraCotizacion?.valorCotizacion | number}}</h2>
-          </button>
+          {{c.valorCotizacion | currency}}
         </ion-col>
       </ion-row>
     </ion-card-content>

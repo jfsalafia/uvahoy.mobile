@@ -12,7 +12,9 @@ import { Loading, LoadingController } from 'ionic-angular';
 export class HoyPage {
     public indicadores: Array<any> = [];
 
-    public fechaCotizacion: string = moment().startOf('day').toDate().toISOString();
+    public fechaCotizacion: Moment = moment().endOf('day');
+
+    public cantidadDias : number = 1;
 
     public mode: string = "";
 
@@ -41,12 +43,19 @@ export class HoyPage {
         return this.formatMomentDate(moment(item));
     };
 
-    getCotizaciones(indicadores: any[], fecha: Moment): void {
+    getCotizaciones(indicadores: any[], fechaCotizacion: Moment): void {
         var i = _.map(indicadores, function (i: any) {
             return i.id;
         });
 
-        this.indicadoresDataProvider.getMultiIndicadorCotizaciones(i.join(), fecha.format("MM/DD/YYYY")).subscribe((cotizacionesData: any) => {
+        var f1 = fechaCotizacion;
+        var f2 = moment(fechaCotizacion).add(-1*this.cantidadDias,'day');
+
+        var fechas = _.map([f1,f2], function (fecha: Moment) {
+            return fecha.format("MM/DD/YYYY");
+        });
+
+        this.indicadoresDataProvider.getMultiIndicadorCotizaciones(i.join(), fechas.join()).subscribe((cotizacionesData: any) => {
             var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
                 return {
                     indicadorId: c.indicadorId,
@@ -55,13 +64,31 @@ export class HoyPage {
                 };
             });
 
-            _.each(cotizaciones, function (c) {
+            var ordenadas = _.sortBy(cotizaciones, function (c) {
+                return moment(c.fechaHoraCotizacion).toDate();
+            });
+
+            _.each(ordenadas, function (c) {
                 var ind = _.filter(indicadores, function (i) {
                     return i.id == c.indicadorId
                 });
 
                 if (!_.isEmpty(ind)) {
-                    _.first(ind).valorCotizacion = c.valorCotizacion;
+                    var indicador = _.first(ind);
+
+                    if (moment().diff(c.fechaHoraCotizacion, 'days') == 0) {
+                        indicador.valorCotizacion = c.valorCotizacion;
+                        if (indicador.cotizacionPrevia) {
+                            indicador.variacion = c.valorCotizacion - indicador.cotizacionPrevia;
+                            indicador.variacionSigno = indicador.variacion > 0 ? '+':  (indicador.variacion == 0 ? '=': '-');
+
+                            indicador.variacionPorcentual =  (indicador.variacion / indicador.cotizacionPrevia);
+                        }
+                    }
+                    else {
+                        indicador.cotizacionPrevia = c.valorCotizacion;
+                    }
+
                 }
             });
         });
@@ -80,7 +107,7 @@ export class HoyPage {
                 this.indicadores.push(indicadoresData.items[i]);
             }
 
-            this.getCotizaciones(this.indicadores, moment(this.fechaCotizacion));
+            this.getCotizaciones(this.indicadores, this.fechaCotizacion);
 
             this.cancelLoading(loadingItem);
         });

@@ -10,31 +10,49 @@ import * as _ from 'lodash'
 })
 
 export class ContactPage {
+  public cantidadDetalle: number = 5;
   public mode: string = "";
-  public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
+  public variaciones: Array<string> = ['Diaria', 'Mensual', 'Trimestral', 'Semestral', 'Anual'];
   public variacionElegida: string = 'Diaria';
 
-  public fechaDesde: string = this.formatMomentDate(moment().add(-1, 'day').startOf('day'));
-  public fechaHasta: string =this.formatMomentDate(moment().startOf('day'));
+  
+  public fechaHasta: string = this.formatMomentDate(moment().startOf('day'));
+  public fechaDesde: string = this.getFechaDesde(this.variacionElegida, moment(this.fechaHasta));
 
   formatMomentDate(item: moment.Moment): string {
     return item.format('MM/DD/YYYY');
   }
 
   formatDate(item: string): string {
-    return this.formatMomentDate(moment(item));
+    return moment(item).format('DD/MM/YY');
+  }
+
+  getFechaDesde (variacion: string, fechaHasta: moment.Moment): string {
+    let fechaDesde: moment.Moment = fechaHasta;
+
+    if(variacion == 'Diaria') {
+      fechaDesde = fechaHasta.add(-1, 'day').startOf('day');
+    }
+    else if(variacion == 'Mensual') {
+      fechaDesde = fechaHasta.add(-1, 'month').startOf('day');
+    }
+    else if(variacion == 'Anual') {
+      fechaDesde = fechaHasta.add(-1, 'year').startOf('day');
+    }
+    else if(variacion == 'Trimestral') {
+      fechaDesde = fechaHasta.add(-3, 'month').startOf('day');
+    }
+    else if(variacion == 'Semestral') {
+      fechaDesde = fechaHasta.add(-6, 'month').startOf('day');
+    }
+    return this.formatMomentDate(fechaDesde); 
   }
 
   onVariacionChange(): void {
-    if(this.variacionElegida == 'Diaria') {
-      this.fechaDesde =  this.formatMomentDate(moment().add(-1, 'day').startOf('day'));
-    }
-    else if(this.variacionElegida == 'Mensual') {
-      this.fechaDesde =  this.formatMomentDate(moment().add(-1, 'month').startOf('day'));
-    }
-    else if(this.variacionElegida == 'Anual') {
-      this.fechaDesde =  this.formatMomentDate(moment().add(-1, 'year').startOf('day'));
-    }
+    let fh: moment.Moment = moment().startOf('day');
+
+    this.fechaHasta = this.formatMomentDate(fh);
+    this.fechaDesde = this.getFechaDesde(this.variacionElegida , fh);
 
     for (var i = 0; i < this.indicadores.length; i++) {
       var ind = this.indicadores[i];
@@ -50,20 +68,23 @@ export class ContactPage {
   }
 
   getCotizaciones(indicador: any, fechaDesde: string, fechaHasta: string): void {
-    
     this.indicadoresDataProvider.getCotizaciones(indicador.id, fechaDesde, fechaHasta).subscribe((cotizacionesData: any) => {
 
       var valoresCotizacionesOrdenadas = _.sortBy(cotizacionesData.cotizaciones, function (c) {
         return moment(c.fechaHoraCotizacion).toDate();
       });
 
+     
+
       indicador.ultimaCotizacion = _.last(valoresCotizacionesOrdenadas);
 
       indicador.primeraCotizacion = _.first(valoresCotizacionesOrdenadas);
 
       if (indicador.primeraCotizacion) {
-        indicador.variacionPorcentual = 100 * ((indicador.ultimaCotizacion.valorCotizacion / indicador.primeraCotizacion.valorCotizacion)-1);
+        indicador.variacionPorcentual = ((indicador.ultimaCotizacion.valorCotizacion / indicador.primeraCotizacion.valorCotizacion)-1);
       }
+
+      indicador.cotizaciones = _.take(valoresCotizacionesOrdenadas.reverse(), this.cantidadDetalle);
    
     });
   }
