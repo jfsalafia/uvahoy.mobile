@@ -80,7 +80,7 @@ export class HoyPage {
                         indicador.valorCotizacion = c.valorCotizacion;
                         if (indicador.cotizacionPrevia) {
                             indicador.variacion = c.valorCotizacion - indicador.cotizacionPrevia;
-                            indicador.variacionSigno = indicador.variacion > 0 ? '+':  (indicador.variacion == 0 ? '=': '-');
+                            indicador.variacionSigno = indicador.variacion > 0 ? '+':  (indicador.variacion == 0 ? '=': '---');
 
                             indicador.variacionPorcentual =  (indicador.variacion / indicador.cotizacionPrevia);
                         }

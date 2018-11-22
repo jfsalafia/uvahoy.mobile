@@ -14,16 +14,15 @@
     <ion-card *ngFor="let indicador of indicadores">
         <ion-item>
             <ion-row>
-                <ion-col col-8>
+                <ion-col >
                     <ion-icon name="logo-twitter" >
                     </ion-icon>
                     <span>{{indicador.descripcion}}</span>
                 </ion-col>
-                <ion-col col-4> 
-                    
+                <ion-col> 
                     <ion-badge>{{indicador.valorCotizacion | currency}}</ion-badge>
                     <ion-badge>{{indicador.variacionSigno}}{{indicador.variacion | currency}}</ion-badge>
-                    <ion-badge>{{indicador.variacionSigno}} {{indicador.variacionPorcentual | percent :'1.4-4'}}</ion-badge>
+                    <ion-badge>{{indicador.variacionSigno}} {{indicador.variacionPorcentual | percent :'1.4-0'}}</ion-badge>
                 </ion-col>
             </ion-row>
         </ion-item>

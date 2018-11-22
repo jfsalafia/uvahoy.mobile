@@ -42,15 +42,44 @@ export class HomePage {
 
   public lineChartLegend: boolean = true;
   public lineChartType: string = 'line';
-  public fechaDesde: string = moment().add(-7, 'days').startOf('day').toDate().toISOString();
-  public fechaHasta: string = moment().startOf('day').toDate().toISOString();
+  
 
-  public variacionElegida: string = 'Diaria';
+  getFechaDesde(variacion: string, fechaHasta: moment.Moment): Moment {
+    let fechaDesde: moment.Moment = fechaHasta;
+
+    if (variacion == 'Diaria') {
+      fechaDesde = fechaHasta.add(-1, 'day').startOf('day');
+    }
+    else if (variacion == 'Semanal') {
+      fechaDesde = fechaHasta.add(-1, 'week').startOf('day');
+    }
+    else if (variacion == 'Mensual') {
+      fechaDesde = fechaHasta.add(-1, 'month').startOf('day');
+    }
+    else if (variacion == 'Anual') {
+      fechaDesde = fechaHasta.add(-1, 'year').startOf('day');
+    }
+    else if (variacion == 'Trimestral') {
+      fechaDesde = fechaHasta.add(-3, 'month').startOf('day');
+    }
+    else if (variacion == 'Semestral') {
+      fechaDesde = fechaHasta.add(-6, 'month').startOf('day');
+    }
+    return fechaDesde;
+  }
+  public variacionElegida: string = 'Mensual';
+
+  private fh: Moment =  moment().endOf('day');
+
+  public fechaHasta: string = this.fh.toDate().toISOString();
+  public fechaDesde: string =  this.getFechaDesde(this.variacionElegida, this.fh).toDate().toISOString();
+
   public mode: string = "";
-  public variaciones: Array<string> = ['Diaria', 'Mensual', 'Anual'];
+  public variaciones: Array<string> = ['Diaria', 'Semanal', 'Mensual', 'Semestral', 'Anual'];
+
 
   constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
-    this.lineChartData.push({ data: [], label: '', id: 1 });
+    this.lineChartData.push({ data: [], label: 'Indicador', id: 1 });
   };
 
   presentLoading(): Loading {
@@ -74,32 +103,56 @@ export class HomePage {
     return this.formatMomentDate(moment(item));
   }
 
+  getIntervalos(variacion: string): Moment[] {
+
+    var intervalos: Moment[] = [];
+    var duration: moment.DurationInputArg2;
+
+    if (variacion == 'Diaria') {
+      duration = 'days';
+    }
+    else if (variacion == 'Semanal') {
+      duration = 'days';
+    }
+    else if (variacion == 'Mensual') {
+      duration = 'days';
+    }
+    else if (variacion == 'Anual') {
+      duration = 'quarter';
+    }
+    else if (variacion == 'Trimestral') {
+      duration = 'month';
+    }
+    else if (variacion == 'Semestral') {
+      duration = 'month';
+    }
+
+    var cant: number = 0;
+
+    var d = moment(this.fechaDesde).toDate();
+   
+    var h: Moment = moment(this.fechaHasta);
+
+    while(h.isSameOrAfter(moment(d).add(cant, duration))) {
+
+      intervalos.push(moment(d).add(cant, duration));
+      cant++;
+    }
+
+    return _.uniq(_.sortBy(intervalos, function(i) {
+        return i.toDate();
+    }));
+
+  }
+
+  onVariacionChange(): void {
+    this.fechaDesde = this.getFechaDesde(this.variacionElegida, moment(this.fechaHasta)).toDate().toISOString();
+    this.updateChartData();
+  }
+
+  
   updateChartData(): void {
-    let diff: number = 0;
-    if (this.variacionElegida == 'Diaria') {
-      diff = moment(this.fechaHasta).diff(this.fechaDesde, 'days');
-    }
-    else if (this.variacionElegida == 'Mensual') {
-      diff = moment(this.fechaHasta).diff(this.fechaDesde, 'months');
-    }
-    else if (this.variacionElegida == 'Anual') {
-      diff = moment(this.fechaHasta).diff(this.fechaDesde, 'years');
-    }
-
-    var fechas: Moment[] = [];
-
-    for (var j = 0; j <= diff; j++) {
-
-      if (this.variacionElegida == 'Diaria') {
-        fechas.push(moment(this.fechaDesde).startOf('day').add(j, 'days'));
-      }
-      else if (this.variacionElegida == 'Mensual') {
-        fechas.push(moment(this.fechaDesde).startOf('day').add(j, 'months'));
-      }
-      else if (this.variacionElegida == 'Anual') {
-        fechas.push(moment(this.fechaDesde).startOf('day').add(j, 'years'));
-      }
-    }
+    var fechas: Moment[] = this.getIntervalos(this.variacionElegida);
 
     this.lineChartLabels = _.map(fechas, function (f: Moment) {
       return f.format('DD/MM/YYYY');
@@ -162,7 +215,12 @@ export class HomePage {
     var dataProvider = this.indicadoresDataProvider;
     this.mode = dataProvider.mode;
 
-    this.lineChartLabels = [this.fechaDesde, this.fechaHasta];
+    var fechas = [this.fechaDesde, this.fechaHasta];
+
+    this.lineChartLabels = _.map(fechas, function (f: string) {
+      return moment(f).format('DD/MM/YYYY');
+    });
+
     var loadingItem = this.presentLoading();
 
     dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
