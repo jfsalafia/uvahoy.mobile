@@ -115,7 +115,7 @@ export class HomePage {
       duration = 'days';
     }
     else if (variacion == 'Mensual') {
-      duration = 'days';
+      duration = 'week';
     }
     else if (variacion == 'Anual') {
       duration = 'quarter';
