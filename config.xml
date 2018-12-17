@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="uvahoy.mobile" version="1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>uvahoy.mobile</name>
-    <description>An awesome Ionic/Cordova app.</description>
-    <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
+    <name>UVA Hoy</name>
+    <description>Cotizaciones de UVA ARG. y DOLARES</description>
+    <author email="jfsalafia@gmail.com" href="http://ionicframework.com/">Federico Salafia</author>
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -90,5 +90,6 @@
         <variable name="UPDATE_API" value="https://api.ionicjs.com" />
         <variable name="MIN_BACKGROUND_DURATION" value="30" />
     </plugin>
+    <plugin name="cordova-plugin-app-version" spec="^0.1.9" />
     <engine name="android" spec="7.0.0" />
 </widget>

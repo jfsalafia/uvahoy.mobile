@@ -3,7 +3,7 @@
     "integrations": {
         "cordova": {}
     },
-    "type": "ionicangular",
+    "type": "ionic-angular",
     "proxies": [
         {
             "path": "/api",

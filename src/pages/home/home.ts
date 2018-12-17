@@ -4,6 +4,7 @@ import { IndicadoresData } from '../../providers/indicadores-data';
 import * as _ from 'lodash'
 import moment, { Moment } from 'moment';
 import { Loading, LoadingController } from 'ionic-angular';
+import { AppVersion } from '@ionic-native/app-version';
 
 @Component({
   selector: 'page-home',
@@ -76,10 +77,14 @@ export class HomePage {
 
   public mode: string = "";
   public variaciones: Array<string> = ['Diaria', 'Semanal', 'Mensual', 'Semestral', 'Anual'];
+  public version : string = "";
 
-
-  constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
+  constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData, private appVersion: AppVersion) {
     this.lineChartData.push({ data: [], label: 'Indicador', id: 1 });
+    
+    this.appVersion.getVersionNumber().then(function(v){
+        this.version = v;
+    });
   };
 
   presentLoading(): Loading {

@@ -15,6 +15,8 @@ import { ChartsModule } from 'ng2-charts';
 import { IndicadoresData} from  '../providers/indicadores-data';
 import { HttpClient,HttpClientModule } from '@angular/common/http';
 import { ENV } from '@app/env';
+import { AppVersion } from '@ionic-native/app-version';
+
 
 // These are all imports required for Pro Client with Monitoring & Deploy,
 // feel free to merge into existing imports above.
@@ -60,7 +62,7 @@ export class MyErrorHandler implements ErrorHandler {
     BrowserModule,
     IonicModule.forRoot(MyApp),
     ChartsModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -77,7 +79,8 @@ export class MyErrorHandler implements ErrorHandler {
     IonicErrorHandler,
     {provide: ErrorHandler, useClass:MyErrorHandler  },
     IndicadoresData,
-    HttpClient
+    HttpClient,
+    AppVersion
   ]
 })
 export class AppModule {}
