@@ -95,7 +95,8 @@ export class AboutPage {
   ionViewDidLoad() {
     var dataProvider = this.indicadoresDataProvider;
 
-    dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
+    dataProvider.getIndicadores()
+    .subscribe((indicadoresData: any) => {
       let bcData : any[] = [];
 
       for (var i = 0; i < indicadoresData.items.length; i++) {

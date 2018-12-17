@@ -4,7 +4,7 @@ import { IndicadoresData } from '../../providers/indicadores-data';
 import * as _ from 'lodash'
 import moment, { Moment } from 'moment';
 import { Loading, LoadingController } from 'ionic-angular';
-import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/finally';
 
 @Component({
     selector: 'page-hoy',
@@ -15,7 +15,7 @@ export class HoyPage {
 
     public fechaCotizacion: Moment = moment().endOf('day');
 
-    public cantidadDias : number = 1;
+    public cantidadDias: number = 1;
 
     public mode: string = "";
 
@@ -45,57 +45,46 @@ export class HoyPage {
         return this.formatMomentDate(moment(item));
     };
 
-    getCotizaciones(indicadores: any[], fechaCotizacion: Moment): void {
-        var i = _.map(indicadores, function (i: any) {
-            return i.id;
-        });
-
+    getCotizaciones(indicador: any, fechaCotizacion: Moment): void {
         var f1 = fechaCotizacion;
-        var f2 = moment(fechaCotizacion).add(-1*this.cantidadDias,'day');
+        var f2 = moment(fechaCotizacion).add(-1 * this.cantidadDias, 'day');
 
-        var fechas = _.map([f1,f2], function (fecha: Moment) {
+        var fechas = _.map([f1, f2], function (fecha: Moment) {
             return fecha.format("MM/DD/YYYY");
         });
 
-        var x = this.indicadoresDataProvider.getMultiIndicadorCotizaciones(i.join(), fechas.join()).subscribe((cotizacionesData: any) => {
+        this.indicadoresDataProvider
+        .getMultiIndicadorCotizaciones(indicador.id, fechas.join())
+        .subscribe((cotizacionesData: any) => {
             var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
                 return {
-                    indicadorId: c.indicadorId,
                     fechaHoraCotizacion: c.fechaHoraCotizacion,
                     valorCotizacion: c.valorCotizacion
                 };
             });
 
             var ordenadas = _.sortBy(cotizaciones, function (c) {
-                return moment(c.fechaHoraCotizacion).add(c.indicadorId,'day').toDate();
+                return moment(c.fechaHoraCotizacion).add(c.indicadorId, 'day').toDate();
             });
 
             _.each(ordenadas, function (c) {
-                var ind = _.filter(indicadores, function (i) {
-                    return i.id == c.indicadorId;
-                });
+                if (moment().diff(c.fechaHoraCotizacion, 'days') == 0) {
+                    indicador.valorCotizacion = c.valorCotizacion;
+                    if (indicador.cotizacionPrevia) {
 
-                if (!_.isEmpty(ind)) {
-                    var indicadorEntity = ind[0];
+                        indicador.variacion = c.valorCotizacion - indicador.cotizacionPrevia;
 
-                    if (moment().diff(c.fechaHoraCotizacion, 'days') == 0) {
-                        indicadorEntity.valorCotizacion = c.valorCotizacion;
-                        if (indicadorEntity.cotizacionPrevia) {
+                        indicador.variacionSigno = indicador.variacion > 0 ? '+' : (indicador.variacion == 0 ? '=' : '-');
 
-                            indicadorEntity.variacion = c.valorCotizacion - indicadorEntity.cotizacionPrevia;
-                            
-                            indicadorEntity.variacionSigno = indicadorEntity.variacion > 0 ? '+':  (indicadorEntity.variacion == 0 ? '=': '-');
-
-                            indicadorEntity.variacionPorcentual =  (indicadorEntity.variacion / indicadorEntity.cotizacionPrevia);
-                        }
+                        indicador.variacionPorcentual = (indicador.variacion / indicador.cotizacionPrevia);
                     }
-                    else {
-                        indicadorEntity.cotizacionPrevia = c.valorCotizacion;
-                    }
+                }
+                else {
+                    indicador.cotizacionPrevia = c.valorCotizacion;
                 }
             });
         });
-        
+
     };
 
     ionViewDidLoad() {
@@ -105,14 +94,17 @@ export class HoyPage {
 
         var loadingItem = this.presentLoading();
 
-        dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
+        dataProvider.getIndicadores()
+            .finally(() => {
+                loadingItem.dismiss();
+            })
+            .subscribe((indicadoresData: any) => {
+                for (var i = 0; i < indicadoresData.items.length; i++) {
+                    var ind = indicadoresData.items[i];
+                    this.indicadores.push(ind);
+                    this.getCotizaciones(ind, this.fechaCotizacion);
 
-            for (var i = 0; i < indicadoresData.items.length; i++) {
-                this.indicadores.push(indicadoresData.items[i]);
-            }
-
-            this.getCotizaciones(this.indicadores, this.fechaCotizacion);
-          
-        });
+                }
+            });
     };
 }

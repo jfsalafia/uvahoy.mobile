@@ -228,14 +228,16 @@ export class HomePage {
 
     var loadingItem = this.presentLoading();
 
-    dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
+    dataProvider.getIndicadores()
+    .finally(() => {
+      this.cancelLoading(loadingItem);
+    })
+    .subscribe((indicadoresData: any) => {
       this.lineChartData = [];
       for (var i = 0; i < indicadoresData.items.length; i++) {
         this.indicadores.push(indicadoresData.items[i]);
         this.lineChartData.push({ data: [], label: indicadoresData.items[i].abreviatura, id: indicadoresData.items[i].id });
       }
-
-      this.cancelLoading(loadingItem);
     });
   }
 }
