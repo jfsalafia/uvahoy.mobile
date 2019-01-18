@@ -68,7 +68,7 @@ export class HomePage {
     }
     return fechaDesde;
   }
-  public variacionElegida: string = 'Mensual';
+  public variacionElegida: string = 'Trimestral';
 
   private fh: Moment =  moment().endOf('day');
 
@@ -76,7 +76,7 @@ export class HomePage {
   public fechaDesde: string =  this.getFechaDesde(this.variacionElegida, this.fh).toDate().toISOString();
 
   public mode: string = "";
-  public variaciones: Array<string> = ['Diaria', 'Semanal', 'Mensual', 'Semestral', 'Anual'];
+  public variaciones: Array<string> = ['Diaria', 'Semanal', 'Mensual', 'Trimestral','Semestral', 'Anual'];
   public version : string = "";
 
   constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData, private appVersion: AppVersion) {

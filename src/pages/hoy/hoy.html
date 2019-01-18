@@ -11,21 +11,42 @@
     <ion-item>
         <ion-label>{{formatMomentDate(fechaCotizacion)}}</ion-label>
     </ion-item>
-    <ion-card *ngFor="let indicador of indicadores">
+    <ion-card *ngFor="let indicador of getIndicadoresVisibles()">
         <ion-item>
             <ion-row>
-                <ion-col >
-                    <ion-icon name="logo-twitter" >
+                <ion-col>
+                    <ion-icon name="logo-twitter">
                     </ion-icon>
                     <span>{{indicador.descripcion}}</span>
                 </ion-col>
-                <ion-col> 
+                <ion-col>
                     <ion-badge>{{indicador.valorCotizacion | currency}}</ion-badge>
                     <ion-badge>{{indicador.variacion | currency}}</ion-badge>
                     <ion-badge>{{indicador.variacionPorcentual | percent :'1.4-0'}}</ion-badge>
                 </ion-col>
             </ion-row>
         </ion-item>
-        
+    </ion-card>
+    <ion-card>
+        <ion-item>
+            <ion-label>Valor</ion-label>
+            <ion-input type="number" [(ngModel)]="calculadorValor" (change)="onIndicadorCalculadorChange()">
+            </ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label>Expresado en</ion-label>
+            <ion-select  okText="Aceptar" cancelText="Cancelar" [(ngModel)]="indicadorCalculador" (ionChange)="onIndicadorCalculadorChange()">
+                <ion-option *ngFor="let i of indicadores" [value]="i">{{i.descripcion}}</ion-option>
+            </ion-select>
+        </ion-item>
+        <ion-row *ngFor="let i of getIndicadoresVisiblesCalculador()">
+            <ion-col>
+                <span>{{i.descripcion}}</span>
+            </ion-col>
+            <ion-col>
+                <ion-badge>{{i.valorCalculador | currency}}</ion-badge>
+            </ion-col>
+        </ion-row>
+
     </ion-card>
 </ion-content>

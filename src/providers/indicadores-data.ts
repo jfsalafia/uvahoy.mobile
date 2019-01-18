@@ -7,8 +7,8 @@ export class IndicadoresData {
 
   serviceUrl: string = ENV.apiUrl;
   mode: string = ENV.mode;
-  
-  constructor(public httpClient: HttpClient) { 
+
+  constructor(public httpClient: HttpClient) {
 
   };
 
@@ -18,23 +18,34 @@ export class IndicadoresData {
 
   getCotizaciones(id: number, fechaDesde: string, fechaHasta: string) {
     let params: HttpParams = new HttpParams()
-    .set('IndicadorId', id.toString())
-    .set('FechaDesde', fechaDesde)
-    .set('FechaHasta', fechaHasta);
+      .set('IndicadorId', id.toString())
+      .set('FechaDesde', fechaDesde)
+      .set('FechaHasta', fechaHasta);
 
     var apiUrl = this.serviceUrl + 'GetIndicadorDetail';
 
-    return this.httpClient.get(apiUrl, {params: params});
+    return this.httpClient.get(apiUrl, { params: params });
   };
 
   getMultiIndicadorCotizaciones(indicadores: string, fechas: string) {
     let params: HttpParams = new HttpParams()
-    .set('Indicadores', indicadores)
-    .set('Fechas', fechas)
-    .set('Separador', ',');
+      .set('Indicadores', indicadores)
+      .set('Fechas', fechas)
+      .set('Separador', ',');
 
     var apiUrl = this.serviceUrl + 'GetMultiIndicadorDetail';
 
-    return this.httpClient.get(apiUrl, {params: params});
+    return this.httpClient.get(apiUrl, { params: params });
+  };
+
+  getCalculadorCotizaciones(id: number, fechaDesde: string, esIndicadorDefault: boolean) {
+    let params: HttpParams = new HttpParams()
+      .set('IndicadorId', id.toString())
+      .set('FechaDesde', fechaDesde)
+      .set('EsIndicadorDefault', esIndicadorDefault.toString());
+
+    var apiUrl = this.serviceUrl + 'GetCalculadorCotizaciones';
+
+    return this.httpClient.get(apiUrl, { params: params });
   };
 }

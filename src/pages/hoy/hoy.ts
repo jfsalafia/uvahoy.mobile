@@ -19,6 +19,10 @@ export class HoyPage {
 
     public mode: string = "";
 
+    public calculadorValor: number = 0;
+    public indicadorCalculador: any;
+    public calculadorCotizaciones: Array<any> = [];
+
     constructor(public loadingCtrl: LoadingController, public navCtrl: NavController, public indicadoresDataProvider: IndicadoresData) {
 
     };
@@ -45,6 +49,41 @@ export class HoyPage {
         return this.formatMomentDate(moment(item));
     };
 
+    onIndicadorCalculadorChange(): void {
+        if (this.indicadorCalculador) {
+            var pivotId = this.indicadorCalculador.id;
+
+            var valor = this.calculadorValor;
+            var cotizacionPivot = this.indicadorCalculador.valorCotizacion;
+
+            _.each(this.indicadores, function (i: any) {
+                if (i.id == pivotId) {
+                    i.valorCalculador = valor;
+                }
+                else {
+                    i.valorCalculador = valor * cotizacionPivot / i.valorCotizacion;
+                }
+            });
+        }
+    };
+    getIndicadoresVisiblesCalculador(): any[] {
+        if(this.indicadorCalculador) {
+            var pivotId = this.indicadorCalculador.id;
+            return _.filter(this.indicadores, function(i:any) {
+                return i.id != pivotId;
+            })
+        }
+        return this.indicadores;
+       
+    };
+
+    getIndicadoresVisibles(): any[] {
+
+        return _.filter(this.indicadores, function(i:any) {
+            return i.id != 0 ;
+        })
+    };
+
     getCotizaciones(indicador: any, fechaCotizacion: Moment): void {
         var f1 = fechaCotizacion;
         var f2 = moment(fechaCotizacion).add(-1 * this.cantidadDias, 'day');
@@ -54,56 +93,62 @@ export class HoyPage {
         });
 
         this.indicadoresDataProvider
-        .getMultiIndicadorCotizaciones(indicador.id, fechas.join())
-        .subscribe((cotizacionesData: any) => {
-            var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
-                return {
-                    fechaHoraCotizacion: c.fechaHoraCotizacion,
-                    valorCotizacion: c.valorCotizacion
-                };
-            });
+            .getMultiIndicadorCotizaciones(indicador.id, fechas.join())
+            .subscribe((cotizacionesData: any) => {
+                var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
+                    return {
+                        fechaHoraCotizacion: c.fechaHoraCotizacion,
+                        valorCotizacion: c.valorCotizacion
+                    };
+                });
 
-            var ordenadas = _.sortBy(cotizaciones, function (c) {
-                return moment(c.fechaHoraCotizacion).add(c.indicadorId, 'day').toDate();
-            });
+                var ordenadas = _.sortBy(cotizaciones, function (c) {
+                    return moment(c.fechaHoraCotizacion).add(c.indicadorId, 'day').toDate();
+                });
 
-            _.each(ordenadas, function (c) {
-                if (moment().diff(c.fechaHoraCotizacion, 'days') == 0) {
-                    indicador.valorCotizacion = c.valorCotizacion;
-                    if (indicador.cotizacionPrevia) {
+                _.each(ordenadas, function (c) {
+                    if (moment().diff(c.fechaHoraCotizacion, 'days') == 0) {
+                        indicador.valorCotizacion = c.valorCotizacion;
+                        if (indicador.cotizacionPrevia) {
 
-                        indicador.variacion = c.valorCotizacion - indicador.cotizacionPrevia;
+                            indicador.variacion = c.valorCotizacion - indicador.cotizacionPrevia;
 
-                        indicador.variacionSigno = indicador.variacion > 0 ? '+' : (indicador.variacion == 0 ? '=' : '-');
+                            indicador.variacionSigno = indicador.variacion > 0 ? '+' : (indicador.variacion == 0 ? '=' : '-');
 
-                        indicador.variacionPorcentual = (indicador.variacion / indicador.cotizacionPrevia);
+                            indicador.variacionPorcentual = (indicador.variacion / indicador.cotizacionPrevia);
+                        }
                     }
-                }
-                else {
-                    indicador.cotizacionPrevia = c.valorCotizacion;
-                }
+                    else {
+                        indicador.cotizacionPrevia = c.valorCotizacion;
+                    }
+                });
             });
-        });
-
     };
 
     ionViewDidLoad() {
-
         var dataProvider = this.indicadoresDataProvider;
         this.mode = dataProvider.mode;
 
         var loadingItem = this.presentLoading();
+        this.indicadorCalculador ={
+            id: 0,
+            descripcion: 'AR$',
+            valorCotizacion: 1,
+            variacion: 0,
+            variacionPorcentual: 0
+        };
+
+        this.indicadores.push(this.indicadorCalculador);
 
         dataProvider.getIndicadores()
             .finally(() => {
-                loadingItem.dismiss();
+                this.cancelLoading(loadingItem);
             })
             .subscribe((indicadoresData: any) => {
                 for (var i = 0; i < indicadoresData.items.length; i++) {
                     var ind = indicadoresData.items[i];
                     this.indicadores.push(ind);
                     this.getCotizaciones(ind, this.fechaCotizacion);
-
                 }
             });
     };

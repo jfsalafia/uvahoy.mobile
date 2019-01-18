@@ -32,7 +32,7 @@ export class AboutPage {
   }
 
   getFechas(): Moment[] {
-    const cantidad = 5;
+    const cantidad = 12;
     var items: Moment[]=[];
 
     for(var i = cantidad ; i >= 0; i--) {
@@ -49,12 +49,12 @@ export class AboutPage {
     var fechas = _.map(this.getFechas(), function(f:Moment) {
         return f.format("MM/DD/YYYY");
     });
-
-    var bcdata = this.barChartData;
     
     this.indicadoresDataProvider.getMultiIndicadorCotizaciones(ids.join(), fechas.join()).subscribe((cotizacionesData: any) => {
+      
+      
       for(var i = 0; i < this.barChartData.length; i++) {
-        bcdata[i].data = [];
+        this.barChartData[i].data = [];
         var indicadorId = this.barChartData[i].id;
         
         var cots = _.filter(cotizacionesData.cotizaciones, function(c) {
@@ -62,7 +62,7 @@ export class AboutPage {
         });
 
         let clone = JSON.parse(JSON.stringify(this.barChartData));
-        var idx = _.filter(clone, function(c){
+        var idx = _.filter(clone, function(c: any){
             return c.id == indicadorId;
         });
 
@@ -72,6 +72,7 @@ export class AboutPage {
           });
         }
        
+      
         this.barChartData = clone;
       }     
     });
@@ -89,22 +90,19 @@ export class AboutPage {
   
    this.barChartLabels = [].concat(labels);
 
-   this.barChartData.push({ data: [], label: 'test', id: 1 });
+   this.barChartData.push({ data: [], label: 'test', id: -1 });
   }
 
   ionViewDidLoad() {
     var dataProvider = this.indicadoresDataProvider;
 
-    dataProvider.getIndicadores()
-    .subscribe((indicadoresData: any) => {
-      let bcData : any[] = [];
-
+    dataProvider.getIndicadores().subscribe((indicadoresData: any) => {
       for (var i = 0; i < indicadoresData.items.length; i++) {
         var ind = indicadoresData.items[i];
-     
-        bcData.push({ data: [], label: ind.descripcion, id: ind.id });
+    
+        this.barChartData.push({ data: [], label: ind.descripcion, id: ind.id });
       }
-      this.barChartData = bcData;
+      this.barChartData.shift();
     });
   }
 
