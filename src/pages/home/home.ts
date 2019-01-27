@@ -72,6 +72,8 @@ export class HomePage {
 
   private fh: Moment =  moment().endOf('day');
 
+  public fechaMaxima: string = moment().endOf('day').format('YYYY-MM-DD');
+
   public fechaHasta: string = this.fh.toDate().toISOString();
   public fechaDesde: string =  this.getFechaDesde(this.variacionElegida, this.fh).toDate().toISOString();
 
@@ -147,7 +149,6 @@ export class HomePage {
     return _.uniq(_.sortBy(intervalos, function(i) {
         return i.toDate();
     }));
-
   }
 
   onVariacionChange(): void {
@@ -155,19 +156,13 @@ export class HomePage {
     this.updateChartData();
   }
 
-  
   updateChartData(): void {
     var fechas: Moment[] = this.getIntervalos(this.variacionElegida);
 
     this.lineChartLabels = _.map(fechas, function (f: Moment) {
       return f.format('DD/MM/YYYY');
     });
-
-    var loadingItem = this.presentLoading();
-
     this.getCotizaciones(this.indicadores, fechas);
-
-    this.cancelLoading(loadingItem);
   };
 
   getCotizaciones(indicadores: any[], fechas: Moment[]): void {
@@ -180,8 +175,14 @@ export class HomePage {
     });
 
     var lcdata = this.lineChartData;
+    
+    var loadingItem = this.presentLoading();
 
-    this.indicadoresDataProvider.getMultiIndicadorCotizaciones(i.join(), f.join()).subscribe((cotizacionesData: any) => {
+    this.indicadoresDataProvider.getMultiIndicadorCotizaciones(i.join(), f.join())
+    .finally(() => {
+      this.cancelLoading(loadingItem);
+    })
+    .subscribe((cotizacionesData: any) => {
 
       var cotizaciones = _.map(cotizacionesData.cotizaciones, function (c) {
         return {
@@ -230,6 +231,7 @@ export class HomePage {
 
     dataProvider.getIndicadores()
     .finally(() => {
+      
       this.cancelLoading(loadingItem);
     })
     .subscribe((indicadoresData: any) => {
