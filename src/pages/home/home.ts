@@ -70,9 +70,9 @@ export class HomePage {
   }
   public variacionElegida: string = 'Trimestral';
 
-  private fh: Moment =  moment().endOf('day');
+  private fh: Moment =  moment();
 
-  public fechaMaxima: string = moment().endOf('day').format('YYYY-MM-DD');
+  public fechaMaxima: string = moment().format('YYYY-MM-DD');
 
   public fechaHasta: string = this.fh.toDate().toISOString();
   public fechaDesde: string =  this.getFechaDesde(this.variacionElegida, this.fh).toDate().toISOString();
@@ -146,7 +146,13 @@ export class HomePage {
       cant++;
     }
 
-    return _.uniq(_.sortBy(intervalos, function(i) {
+    if(_.isEmpty(_.filter(intervalos, function(i:Moment) {
+      return i.isSame(h,'day');
+    }))) {
+        intervalos.push(h);
+    }
+
+    return _.uniq(_.sortBy(intervalos, function(i:Moment) {
         return i.toDate();
     }));
   }
