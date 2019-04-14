@@ -19,7 +19,7 @@ export class HoyPage {
 
     public mode: string = "";
 
-    public calculadorValor: number = 0;
+    public calculadorValor: number = 100;
     public indicadorCalculador: any;
     public calculadorCotizaciones: Array<any> = [];
 
@@ -66,21 +66,21 @@ export class HoyPage {
             });
         }
     };
+    
     getIndicadoresVisiblesCalculador(): any[] {
-        if(this.indicadorCalculador) {
+        if (this.indicadorCalculador) {
             var pivotId = this.indicadorCalculador.id;
-            return _.filter(this.indicadores, function(i:any) {
+            return _.filter(this.indicadores, function (i: any) {
                 return i.id != pivotId;
             })
         }
         return this.indicadores;
-       
+
     };
 
     getIndicadoresVisibles(): any[] {
-
-        return _.filter(this.indicadores, function(i:any) {
-            return i.id != 0 ;
+        return _.filter(this.indicadores, function (i: any) {
+            return i.id != 0;
         })
     };
 
@@ -102,11 +102,11 @@ export class HoyPage {
                     };
                 });
 
-                var ordenadas = _.sortBy(cotizaciones, function (c) {
-                    return moment(c.fechaHoraCotizacion).add(c.indicadorId, 'day').toDate();
+                var ordenadas = _.sortBy(cotizaciones, function (c: any) {
+                    return moment(c.fechaHoraCotizacion).toDate();
                 });
 
-                _.each(ordenadas, function (c) {
+                _.each(ordenadas, function (c: any) {
                     if (moment().diff(c.fechaHoraCotizacion, 'days') == 0) {
                         indicador.valorCotizacion = c.valorCotizacion;
                         if (indicador.cotizacionPrevia) {
@@ -125,24 +125,24 @@ export class HoyPage {
             });
     };
 
-    ionViewDidLoad() {
+    doRefresh(refresher: any) {
+
+        _.remove(this.indicadores, function (i: any) {
+            return i.id != 0;
+        });
+
         var dataProvider = this.indicadoresDataProvider;
         this.mode = dataProvider.mode;
 
         var loadingItem = this.presentLoading();
-        this.indicadorCalculador ={
-            id: 0,
-            descripcion: 'AR$',
-            valorCotizacion: 1,
-            variacion: 0,
-            variacionPorcentual: 0
-        };
-
-        this.indicadores.push(this.indicadorCalculador);
 
         dataProvider.getIndicadores()
             .finally(() => {
                 this.cancelLoading(loadingItem);
+                this.onIndicadorCalculadorChange();
+                if (refresher != null) {
+                    refresher.complete();
+                }
             })
             .subscribe((indicadoresData: any) => {
                 for (var i = 0; i < indicadoresData.items.length; i++) {
@@ -151,5 +151,18 @@ export class HoyPage {
                     this.getCotizaciones(ind, this.fechaCotizacion);
                 }
             });
+    };
+
+    ionViewDidLoad() {
+        this.indicadorCalculador = {
+            id: 0,
+            descripcion: 'AR$',
+            valorCotizacion: 1,
+            variacion: 0,
+            variacionPorcentual: 0
+        };
+
+        this.indicadores.push(this.indicadorCalculador);
+        this.doRefresh(null);
     };
 }

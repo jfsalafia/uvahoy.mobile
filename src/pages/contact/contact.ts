@@ -13,8 +13,8 @@ import * as _ from 'lodash'
 export class ContactPage {
   public cantidadDetalle: number = 5;
   public mode: string = "";
-  public variaciones: Array<string> = ['Diaria', 'Mensual', 'Trimestral', 'Semestral', 'Anual'];
-  public variacionElegida: string = 'Diaria';
+  public variaciones: Array<string> = [ 'Semanal', 'Mensual', 'Trimestral', 'Semestral', 'Anual'];
+  public variacionElegida: string = 'Mensual';
 
 
   public fechaHasta: string = this.formatMomentDate(moment().startOf('day'));
@@ -42,8 +42,8 @@ export class ContactPage {
   getFechaDesde(variacion: string, fechaHasta: moment.Moment): string {
     let fechaDesde: moment.Moment = fechaHasta;
 
-    if (variacion == 'Diaria') {
-      fechaDesde = fechaHasta.add(-1, 'day').startOf('day');
+    if (variacion == 'Semanal') {
+      fechaDesde = fechaHasta.add(-1, 'week').startOf('day');
     }
     else if (variacion == 'Mensual') {
       fechaDesde = fechaHasta.add(-1, 'month').startOf('day');

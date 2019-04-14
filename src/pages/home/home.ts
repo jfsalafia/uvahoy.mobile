@@ -68,7 +68,7 @@ export class HomePage {
     }
     return fechaDesde;
   }
-  public variacionElegida: string = 'Trimestral';
+  public variacionElegida: string = 'Semanal';
 
   private fh: Moment =  moment();
 
